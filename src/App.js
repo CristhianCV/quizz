@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import { Suspense, lazy } from "react";
+import { Redirect, Router } from "@reach/router";
+import { useDataLayerValue } from "./context/DataLayer";
+
+const Home = lazy(() => import("./pages/Home"));
+const Questionary = lazy(() => import("./pages/Questionary"));
+const Results = lazy(() => import("./pages/Results"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
+  const [{ name }, dispatch] = useDataLayerValue();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Suspense fallback={<div>Loading ...</div>}>
+      <Router>
+        <Home path="/"></Home>
+        {name === "" && (
+          <Redirect noThrow from="/questionary" to="/"></Redirect>
+        )}
+        {name === "" && <Redirect noThrow from="/results" to="/"></Redirect>}
+        <Questionary path="/questionary"></Questionary>
+        <Results path="/results"></Results>
+        <NotFound default></NotFound>
+      </Router>
+    </Suspense>
   );
 }
 
